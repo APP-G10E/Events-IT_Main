@@ -1,6 +1,6 @@
 <?php
 // Database connection parameters
-$servername = "localhost";
+$servername = getenv("DB_HOST") ?: "localhost";
 $username = "root"; // Replace with your database username
 $password = ""; // Replace with your database password
 $dbname = "app_g10e";
