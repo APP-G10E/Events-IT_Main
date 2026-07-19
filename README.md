@@ -15,6 +15,7 @@ Docker to [Herogu](https://herogu.garageisep.com).
 - [Getting started](#getting-started)
 - [Demo accounts & seed data](#demo-accounts--seed-data)
 - [Project structure](#project-structure)
+- [Reports](#reports)
 - [Known limitations](#known-limitations)
 - [Contributors](#contributors)
 
@@ -107,7 +108,20 @@ Language/     Translation JSON + tooling
 Mail/         Verification email sending
 SQLimport/    SQL schema dump, import script, and demo/dummy data
 docker/       Production Dockerfile/nginx config used for the Herogu deployment
+livrable_original/  Network study report (French, LaTeX sources + compiled PDF)
+livrable_english/   English translation of the report (LaTeX sources + compiled PDF)
 ```
+
+## Reports
+
+The network study deliverable that accompanies the project lives in two folders:
+
+- `livrable_original/` — the original French report (`2024__G10E___Livrable_final.pdf`) with its
+  LaTeX sources and figures.
+- `livrable_english/` — a full English translation (`livrable_english.pdf`); both the text and
+  the figures containing French text were translated, keeping the exact same layout.
+
+Each folder is self-contained: compiling `main.tex` inside it reproduces the corresponding PDF.
 
 ## Known limitations
 
