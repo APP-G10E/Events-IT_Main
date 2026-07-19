@@ -10,3 +10,20 @@
 
 # Ignore vendor folder (Composer dependencies)
 /vendor/
+
+# Ignore LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+livrable_english/Livrable_1.pdf
+
+# Ignore local archive of the deliverable
+livrable_english.zip
