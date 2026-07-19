@@ -13,10 +13,7 @@ Docker to [Herogu](https://herogu.garageisep.com).
 - [Features](#features)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
-  - [Docker (recommended)](#docker-recommended)
-  - [XAMPP / classic LAMP stack](#xampp--classic-lamp-stack)
 - [Demo accounts & seed data](#demo-accounts--seed-data)
-- [Configuration](#configuration)
 - [Project structure](#project-structure)
 - [Known limitations](#known-limitations)
 - [Contributors](#contributors)
@@ -54,32 +51,20 @@ manually by an admin through `AdminPages/verify_organisers.php`.
 - **Production deploy**: nginx + php-fpm in a single container (`docker/Dockerfile`,
   `docker/nginx.conf`), built on top of `ghcr.io/garage-isep/herogu-back/herogu-php-base` and
   shipped to Herogu.
-- **Local dev**: a separate Docker Compose stack (`docker-compose.yml`, `docker/dev/Dockerfile`)
-  running Apache+PHP and MariaDB, unrelated to the production image.
 
 There is no `composer.json` — the app only relies on core/bundled PHP extensions (`mysqli`).
 
 ## Getting started
 
-### Docker (recommended)
+The app is plain PHP with no build step, meant to run on a classic Apache/nginx + MySQL stack
+(e.g. XAMPP locally):
 
-Requires Docker and the Compose plugin.
-
-```bash
-docker compose up -d --build
-```
-
-Open **http://localhost:8080/**. On first boot, MariaDB automatically imports the schema
-(`SQLimport/app_g10e.sql`) and demo data (`SQLimport/dummy_data.sql`) — give it a few extra
-seconds before the first page load.
-
-Useful commands:
-
-```bash
-docker compose logs -f web      # tail the app container
-docker compose down             # stop the stack, keep the database volume
-docker compose down -v          # stop the stack and wipe/reseed the database
-```
+1. Copy the repo into your web server's document root (e.g. `htdocs/` for XAMPP).
+2. Start Apache and MySQL.
+3. Import `SQLimport/app_g10e.sql` (schema) and, optionally, `SQLimport/dummy_data.sql` (demo
+   data) into an `app_g10e` database — via phpMyAdmin, or by running `SQLimport/import.php`.
+4. The default credentials in `Controller/db_controller.php` (`root` / empty password /
+   `localhost`) match XAMPP's defaults, so no further configuration is needed.
 
 **Key pages:**
 
@@ -91,17 +76,6 @@ docker compose down -v          # stop the stack and wipe/reseed the database
 | Spectator dashboard | `/WEB/dashboard_client.php?customerId=cust-001` |
 | Organiser dashboard | `/WEB/dashboard_organiser.php` |
 | Admin login | `/AdminPages/admin_login.php` |
-
-### XAMPP / classic LAMP stack
-
-The app also runs without Docker, since it was originally developed against XAMPP:
-
-1. Copy the repo into `htdocs/`.
-2. Start Apache and MySQL from the XAMPP control panel.
-3. Import `SQLimport/app_g10e.sql` (schema) and, optionally, `SQLimport/dummy_data.sql` (demo
-   data) into an `app_g10e` database — via phpMyAdmin, or by running `SQLimport/import.php`.
-4. The default credentials in `Controller/db_controller.php` (`root` / empty password /
-   `localhost`) match XAMPP's defaults, so no further configuration is needed.
 
 ## Demo accounts & seed data
 
@@ -120,15 +94,6 @@ Plus four sample festivals (with banner images and ticket prices), sound sensors
 festival, a couple of ticket purchases linking Alice/Bob to festivals, and sample contact-form
 messages — enough to exercise every screen without manually creating data first.
 
-## Configuration
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `DB_HOST` | `localhost` | MySQL/MariaDB host. Set by `docker-compose.yml` to `db`; left at its default for XAMPP/Herogu. |
-
-Database name (`app_g10e`), user (`root`), and password (empty) are hardcoded across the PHP
-files rather than read from environment/config — see [Known limitations](#known-limitations).
-
 ## Project structure
 
 ```
@@ -141,7 +106,7 @@ Assets/       Images, flags, favicons
 Language/     Translation JSON + tooling
 Mail/         Verification email sending
 SQLimport/    SQL schema dump, import script, and demo/dummy data
-docker/       Production Dockerfile/nginx config (Herogu) + docker/dev (local Compose stack)
+docker/       Production Dockerfile/nginx config used for the Herogu deployment
 ```
 
 ## Known limitations
@@ -153,15 +118,14 @@ it or exposing it beyond a local/demo environment:
   `$_POST` values directly into SQL strings instead of using prepared statements. Others
   (`WEB/dashboard_client.php`, `AdminPages/verify_organisers.php`) do use `mysqli::prepare`
   correctly — the codebase is inconsistent rather than uniformly unsafe.
-- **Credentials are hardcoded** (`root` / empty password / `app_g10e`) in every file that opens a
-  DB connection, rather than centralized in one config. Only the host is overridable via
-  `DB_HOST`.
+- **Credentials are hardcoded** (`root` / empty password / `localhost` / `app_g10e`) in every file
+  that opens a DB connection, rather than centralized in one config.
 - **`Controller/vote_handler.php`** inserts into `votingparties` using column names
   (`sensorId`, `vote`) that don't match that table's actual schema (`votingPartyId`, `vote_up`,
   `FestivalId`) — the sound-level voting endpoint will fail as-is.
-- **Outgoing email isn't configured** in the Docker/XAMPP setups (`Mail/` uses PHP's bare
-  `mail()`), so verification emails won't actually be delivered locally — use the pre-verified
-  demo accounts above, or verify rows directly in the database.
+- **Outgoing email isn't configured** for local development (`Mail/` uses PHP's bare `mail()`),
+  so verification emails won't actually be delivered locally — use the pre-verified demo accounts
+  above, or verify rows directly in the database.
 - No automated tests, no CI, no license file.
 
 ## Contributors

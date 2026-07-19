@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Database connection
-$servername = getenv("DB_HOST") ?: "localhost";
+$servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "app_g10e";

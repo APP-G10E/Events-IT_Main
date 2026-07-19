@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$servername = getenv("DB_HOST") ?: "localhost";
+$servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "app_g10e";

@@ -4,7 +4,7 @@ $css_file = "homepage.css";
 $customerId = $_GET['customerId'];
 include '../Styles/head.php';
 
-$servername = getenv("DB_HOST") ?: "localhost";
+$servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "app_g10e";
