@@ -1,6 +1,3 @@
-# Ignore Markdown files
-*.md
-
 # Ignore .idea directory and its contents
 **/.idea/
 
