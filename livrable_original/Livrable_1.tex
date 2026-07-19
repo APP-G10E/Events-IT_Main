@@ -1,0 +1,293 @@
+\documentclass[12]{article}
+\usepackage{titlesec}
+\usepackage{indentfirst}
+\usepackage [french]{babel}
+\usepackage [utf8]{inputenc}
+\usepackage [T1] {fontenc}
+\usepackage{subfiles}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{sidecap}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage[french]{babel}
+\graphicspath{ {./images/} }
+\usepackage[export]{adjustbox}
+\usepackage{enumitem}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{float}
+\usepackage{forest}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+\usepackage[margin = 2.8 cm, headheight = 1.5pt]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\usepackage{colortbl}
+\usepackage{textgreek}
+
+\begin{document}
+
+\newpage
+\section{Communication objets-passerelles par Bluetooth - Romain Oualid / Julien Chémery}
+
+
+
+\subsection{Analyse du Bluetooth - Julien Chémery}
+
+Ici on analyse le signal Bluetooth entre 2 équipements, un téléphone et un ordinateur. Dans notre cas l'ordinateur est l'émetteur (le maître et le téléphone l'esclave actif). On transfère un fichier de 4,88 Mo (39,04 Mb) sur plusieurs distance et à plusieurs reprise pour trouver une moyenne de temps puis le débit en Mbps. On constate bien que le débit du signal diminue plus la distance augmente. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\rowcolor[HTML]{000000} 
+{\color[HTML]{FFFFFF} \textbf{Distance}} & {\color[HTML]{FFFFFF} \textbf{Mesure 1}} & {\color[HTML]{FFFFFF} \textbf{Mesure 2}} & \multicolumn{1}{c|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} \textbf{Mesure 3}}} & {\color[HTML]{FFFFFF} \textbf{Mesure 4}} & {\color[HTML]{FFFFFF} \textbf{Moyenne}} & {\color[HTML]{FFFFFF} \textbf{Débit (kbps)}} \\ \hline
+1m                                       & 50s                                      & 56s                                      & 53s                                                                                   & 53s                                      & 53s                                     & 736,6                                       \\ \hline
+2m                                       & 55s                                      & 61s                                      & 60s                                                                                   & 58s                                      & 58,5s                                   & 667,4                                       \\ \hline
+3m                                       & 55s                                      & 60s                                      & 64s                                                                                   & 59s                                      & 59,5s                                   & 656,1                                       \\ \hline
+4m                                       & 72s                                      & 67s                                      & 73s                                                                                   & 70s                                      & 70,5s                                   & 553,7                                       \\ \hline
+5m                                       & 75s                                      & 78s                                      & 79s                                                                                   & 77s                                      & 77,25s                                  & 505,0                                       \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Capture d’écran 2024-03-08 à 11.37.05.png}
+    \caption{Graphique du débit en fonction de la distance}
+    \label{fig:enter-label}
+\end{figure}
+
+\newpage
+\subsection{Architecture du réseau Bluetooth - Arsène Nouvellon}
+
+Ensuite, on a mesuré la vitesse de transfert moyenne entre une passerelle et un dispositif situé à une distance de 3 mètres, on obtient une mesure de 656,1 Kbps à 3 mètres.\\
+
+Sachant que chaque passerelle doit avoir un débit minimal de 100 Kbps don une passerelle peut gérer 6 objets maximum. On sait également que chaque groupes d'objets doit obligatoirement contenir un maître et un nombre défini d'esclave. On a donc 6 objets pour 5 passerelles et 5 pour une passerelle $ \frac{35}{6} = 5,89 \approx 6$.\\
+
+On doit placer nos différents objets dans un univers de 20 m par 20 m ,afin de maximiser la portée et de limiter les interférences du réseau on a disposé de la manière suivante, comme l'indique la \textit{Figure 2}.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Votre texte de paragraphe (2).png}
+    \caption{Schéma de l'architecture du réseau Bluetooth}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{Puissance d'émission réduite - Romain Oualid / Julien Chémery}
+
+On cherche maintenant la puissance d'émission du Bluetooth. On a un débit de 653,9 Kb/s à 3 mètres
+Une passerelle doit pouvoir assurer un débit d'au moins 100 Kbps par objet tout en ne pouvant en gérer que 7. Il nous faudra donc 5 maîtres gérant 6 esclaves et un dernier maître ne gérant que 5 esclaves pour obtenir le bon compte de 35 objets actifs tout en respectant le débit pour requis pour chaque objet.\\
+
+
+Par la suite, nous sommes à la recherche de la puissance d'émission réduite par le module Bluetooth pour déterminer la classe de puissance auquel le module appartient. Premièrement, le calcul du SINR (signal to interference plus noise ratio) est nécessaire avec les données obtenues précédemment. 
+
+
+\begin{equation*}
+    \text{SINR} = 2^{\frac{D}{B}} - 1 =  2^{\frac{656,1}{1000}} - 1 = 0,58
+\end{equation*}
+
+On cherche ensuite la puissance du bruit thermique du Bluetooth. 
+
+\begin{equation*}
+    P_b = K \times T \times B = 1,38.10^{-23} \times 290 \times 10^9 = 4.10^{-12} \text{ mW}
+\end{equation*}
+
+Maintenant, on a la puissance de l'interférence $P_i = -90$ dBm. Qui une fois convertis en mW fait $10^{-9}$ mW. On peut alors calculer la puissance reçue.\\
+
+\begin{equation*}
+    P_r = \text{SINR} \left( P_b + P_i \right)
+\end{equation*}
+
+\begin{equation*}
+    0,58 \left( 4.10^{-12} + 10^{-9} \right) = 5,8232.10^{-10} \text{ mW}
+\end{equation*}
+\\
+
+Nous savons que la formule pour calculer la puissance émise nécessite la connaissance de deux termes. Premièrement la puissance reçue (Pr) que nous avons obtenu précédemment de valeur $P_r = 5,8232.10^{-10}$ puis dans un second temps le coefficient d'atténuation qui obéit à la formule suivante : $A_{EL} = 32,4 + 20 \log_{10} \left( d \right) + 20 \log_{10} \left( f \right) $ où d = 3m ($3.10^{-3}$) et f = 2,4 GHz (2400 Hz). 
+
+\begin{equation*}
+    A_{EL} = 32,4 + 20 \log_{10} \left( 3.10^{-3} \right) + 20 \log_{10} \left( 2,4.10^{3} \right)
+\end{equation*}
+    
+\begin{equation*}
+    A_{EL} = 49,5 \text{ dBm}
+\end{equation*}
+
+Après avoir obtenu ces deux termes nous pouvons passer au calcul de la puissance émise qui se calcule en multipliant la puissance reçue avec le coefficient d'atténuation converti en milliWatts car nous l'avions en dBm. 
+
+\begin{equation*}
+    P_{e} = P_{r} \times A
+\end{equation*}
+    
+\begin{equation*}
+    P_{e} = 5,8232.10^{-10} \times 10^{4,95}
+\end{equation*}
+
+\begin{equation*}
+    P_{e} = 5,19.10^{-5} \text{ mW}
+\end{equation*}
+    
+On se trouve alors dans la classe de puissance Bluetooth 3 puisqu'on a une valeur de puissance d'émission en dessous de 0,8 mW.
+
+\section{Communication passerelles-serveur central par Wi-fi}
+
+\subsection{Détermination du nombre de points d'accès nécessaires - Jean MANOURY}
+
+Dans cette partie, on souhaite calculer le nombre de points d'accès nécessaires pour couvrir la surface étudiée. \\
+
+On commence avec le calcul de la moyenne du RSSI sur le réseau ISEP EAP.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\rowcolor[HTML]{000000} 
+{\color[HTML]{FFFFFF} Mesure} & {\color[HTML]{FFFFFF} 1} & {\color[HTML]{FFFFFF} 2} & {\color[HTML]{FFFFFF} 3} & {\color[HTML]{FFFFFF} 4} \\ \hline
+RSSI (dBm) & -57 & -59 & -55 & -56 \\ \hline
+RSSI (mW) & $2.0 \times 10^{-6}$ & $1.2 \times 10^{-6}$ & $3.1 \times 10^{-6}$ & $2.5 \times 10^{-6}$ \\ \hline
+\end{tabular}
+\end{table}
+
+On calcule la moyenne de ces valeurs :
+
+\begin{equation*}
+\text{Moy}_\text{RSSI} = \frac{57 + 59 + 55 + 56}{4} = 56.75\text{ dBm}
+\end{equation*}
+
+La moyenne de la puissance du signal reçu est de 56.75dBm. \\
+
+A partir de cette valeur, on va chercher la portée maximale correspondant à un débit de 250Mb/s.
+
+On calcule la valeur de l'atténuation :
+\begin{equation*}
+    \text{A}= \text{PIRE}+\text{RSSI}= 5 + 56.75 = 61.75dBm
+\end{equation*}
+
+On prend la formule du coefficient d'atténuation
+\begin{equation*}
+    \text{A} = 32.4 + 20 \log_{10}(d_\text{km}) + 20 \log_{10}(f_\text{MHz}) + 35 \log_{10} \left( \frac{d_m}{ds_m} \right)
+\end{equation*}
+
+De la deuxième formule, on peut déduire que :
+
+\begin{equation*}
+    55 \log_{10} \left( d_m \right) = \text{A} - 32.4 - 20 \log_{10}(f_\text{GHz}) + 35 \log_{10} \left( ds_m \right)
+\end{equation*}
+
+On prend : 
+
+\begin{equation*}
+    res = \text{A} - 32.4 - 20 \log_{10}(f_\text{GHz}) + 35 \log_{10} \left( ds_m \right)
+\end{equation*}
+
+\begin{equation*}
+    res = 61.75 - 32.4 - 20 \log_{10}(f_\text{GHz}) + 35 \log_{10} \left( ds_m \right)
+\end{equation*}
+
+\begin{equation*}
+    res = 46.20
+\end{equation*}
+
+Et on peut isoler la distance : 
+
+\begin{equation*}
+    \text{d}_\text{m} = 10^{\frac{46.20}{55}} = 6.91 \text{m}
+\end{equation*}
+
+La portée maximale correspondant à un débit de 250Mb/s est de 6.91m \\
+
+On cherche maintenant le nombre de points d'accès nécessaires (N) pour couvrir une surface de 400m². Pour cela, on utilise la surface couverte par un point d'accès : 
+
+\begin{equation*}
+    \text{N} = \frac{400}{\pi \times 6.91^2} = 2.67
+\end{equation*}
+
+Pour couvrir une surface de $400 \text{m}^2$ dans notre configuration, il faut 3 points d'accès.
+
+\subsection{Architecture du réseau WiFi - Arsène Nouvellon}
+
+Grâce aux calculs précédemment effectués, on a découvert que chaque point d’accès Wi-Fi couvrait une zone en forme de cercle de rayon 6,91m. Après plusieurs essais de positionnement, on a vu que l’on peut couvrir l’ensemble du réseau avec seulement deux points d’accès Wi-Fi, ce qui permet d’alléger le réseau et de le rendre moins coûteux. On obtient donc la figure suivante:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Votre texte de paragraphe (3).png}
+    \caption{Schéma de l'architecture du réseau (Bluetooth et WiFi)}
+    \label{fig:enter-label}
+\end{figure}
+
+
+
+\subsection{Planification Point d'accès - Romain Oualid / Julien Chémery / Paul Morel}
+
+\subsubsection{Mesures - Romain Oualid / Julien Chémery}
+
+\begin{table}[H]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|c|c|c|c|}
+\hline
+\rowcolor[HTML]{000000} 
+{\color[HTML]{FFFFFF} Lieu} & \multicolumn{1}{c|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} SSID}} & \multicolumn{1}{c|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Adresse MAC}} & \multicolumn{1}{l|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Fréquence porteuse}} & \multicolumn{1}{l|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Canal}} & \multicolumn{1}{l|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Largeur bande passante}} & \multicolumn{1}{l|}{\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Version Wi-Fi}} \\ \hline
+\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} \begin{tabular}[c]{@{}l@{}}Couloir du\\ troisième étage\end{tabular}} & ISEP EAP & c0:c7:0a:98:f2:c1 & 5 GHz & 64 & 80 MHz & 802.11ax \\ \hline
+\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} \begin{tabular}[c]{@{}l@{}}Escalier entre \\ étages 1 et 2\end{tabular}} & ISEP EAP & c0:c7:0a:9c:02:91 & 5 GHz & 120 & 80 MHz & 802.11ax \\ \hline
+\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} \begin{tabular}[c]{@{}l@{}}Extérieur ISEP\\ côté entrée\end{tabular}} & ISEP EAP & c0:c7:0a:9c:05:01 & 5 GHz & 108 & 80 MHz & 802.11ax \\ \hline
+\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} \begin{tabular}[c]{@{}l@{}}Extérieur ISEP\\ côté parc\end{tabular}} & ISEP EAP & c0:c7:0a:9d:17:31 & 5 GHz & 128 & 80 MHz & 802.11ax \\ \hline
+\cellcolor[HTML]{000000}{\color[HTML]{FFFFFF} Foyer} & ISEP EAP & c0:c7:0a:5c:36:91 & 2,4 GHz & 7 & 40 MHz & 802.11n \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\subsubsection{Analyse - Paul Morel}
+
+Suite à cette opération, il a été observé que le nom du réseau (SSID) reste l'unique constante, tandis que la largeur de bande passante Wi-Fi et la version du Wi-Fi varient selon la fréquence utilisée. Il a également été constaté que les points d’accès Wi-Fi de l’ISEP ne sont pas uniformément réglés sur le même canal, favorisant l'utilisation de canaux distincts pour chaque point d'accès dans une même zone, cela a été mis en place afin de minimiser les interférences. En effet, chaque point d’accès opère sur un canal différent, avec une préférence pour une fréquence porteuse de 5GHz.
+
+
+
+
+\section{Comparaison de Wi-Fi et Bluetooth avec des technologies alternatives - Zhenghan PEI}
+
+Voici cinq technologies sans fil à courte portée alternatives au Wi-Fi et au Bluetooth :
+
+1. Z-Wave
+2. NFC (Communication en Champ Proche)
+3. Zigbee
+4. LoRa (Long Range)
+5. Infrarouge
+
+Voici un tableau comparatif basé sur les critères demandés :
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+ & Bande &  &  & Connexions &  \\
+Technologie & Passante & Débit & Portée & Simultanées & Coût \\
+\hline
+Wi-Fi & Large & Élevé & Moyenne/Longue & Élevé & Modéré à Élevé \\
+Bluetooth & Étroite & Faible à Moyen & Courte/Moyenne & Modéré & Faible à Modéré \\
+Z-Wave & Étroite & Faible & Moyenne/Longue & Élevé & Modéré à Élevé \\
+NFC & Très Étroite & Très Faible & Très Courte & Faible & Faible \\
+Zigbee & Étroite & Faible à Moyen & Courte/Moyenne & Élevé & Modéré \\
+LoRa & Large & Faible à Moyen & Longue & Élevé & Modéré \\
+Infrarouge & N/A & Faible & Courte & Faible & Faible \\
+\hline
+\end{tabular}
+\end{center}
+
+
+Conclusions sur la pertinence du choix des technologies Wi-Fi et Bluetooth :
+\begin{itemize}
+    \item Wi-Fi : Offre une bande passante large, un débit élevé et une portée moyenne à longue, ce qui en fait un choix pertinent pour les applications nécessitant une transmission de données à haut débit sur de longues distances, telles que les réseaux domestiques et professionnels.
+    \item Bluetooth : Avec une bande passante étroite, un débit variable, une portée courte à moyenne et un nombre modéré de connexions simultanées, le Bluetooth convient mieux aux applications nécessitant une faible consommation d'énergie et une connectivité entre appareils à courte distance, comme les écouteurs sans fil et les dispositifs IoT personnels.
+\end{itemize}
+
+
+
+
+
+\end{document}
